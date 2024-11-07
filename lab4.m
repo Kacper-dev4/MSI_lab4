@@ -46,7 +46,8 @@ yPred = net(XTest'); % Używamy wytrenowanej sieci do przewidywania wyników
 yPredClass = round(yPred); % Zaokrąglenie wyników do 0 lub 1, jeśli to klasyfikacja binarna
 yPredClass(yPredClass == 0) = -1;
 
-sim(net,yPred)
+Ytest = sim(net,XTest');
+plot(XTest,Ytest,'o')
 
 % Rzutowanie rzeczywistych etykiet oraz przewidywanych do odpowiedniego formatu
 yTestCategorical = categorical(yTest);
