@@ -22,7 +22,7 @@ zlozenie = [x(7,:);x(8,:);d];
 % sim(net)
 % 
 
-% Tworzenie podziału 80% na treningowe i 20% na testowe
+% Tworzenie podziału 
 c = cvpartition(size(X, 1), 'HoldOut', 0.5);
 
 % Indeksy dla zbioru treningowego i testowego
@@ -49,6 +49,15 @@ yPredClass(yPredClass == 0) = -1;
 Ytest = sim(net,XTest');
 plot(XTest,Ytest,'o')
 
+
+figure;
+gscatter(XTest(:, 1), XTest(:, 2), yPredClass, 'rb', 'xo');
+xlabel('Feature 1');
+ylabel('Feature 2');
+title('SVM Predictions');
+legend('Class 1', 'Class -1');
+
+
 % Rzutowanie rzeczywistych etykiet oraz przewidywanych do odpowiedniego formatu
 yTestCategorical = categorical(yTest);
 yPredClassCategorical = categorical(yPredClass);
@@ -57,3 +66,48 @@ yPredClassCategorical = categorical(yPredClass);
 figure;
 plotconfusion(yTestCategorical, yPredClassCategorical);
 title('Validation Confusion Matrix');
+
+accuracy = sum(yPredClass == yTest') / length(yTest);
+
+
+%% SVM
+% Tworzenie modelu SVM
+SVMModel = fitcsvm(XTrain, yTrain, 'KernelFunction', 'linear', 'Standardize', true);
+
+% Predykcja na zbiorze testowym
+yPredSVM = predict(SVMModel, XTest);
+
+% Konwersja wyników na klasy binarne (opcjonalnie, jeśli w danych masz -1 i 1)
+yPredClassSVM = yPredSVM;
+yPredClassSVM(yPredClassSVM == 0) = -1;
+
+% Rzutowanie rzeczywistych etykiet oraz przewidywanych do odpowiedniego formatu
+yTestCategoricalSVM = categorical(yTest);
+yPredClassCategoricalSVM = categorical(yPredClassSVM);
+
+% Wyświetlenie macierzy pomyłek
+figure;
+plotconfusion(yTestCategoricalSVM, yPredClassCategoricalSVM');
+title('Validation Confusion Matrix');
+
+% Opcjonalnie: wizualizacja wyników
+figure;
+gscatter(XTest(:, 1), XTest(:, 2), yPredClassSVM, 'rb', 'xo');
+xlabel('Feature 1');
+ylabel('Feature 2');
+title('SVM Predictions');
+legend('Class 1', 'Class -1');
+
+% Obliczanie punktów ROC i AUC
+[~, scores] = predict(SVMModel, XTest); % 'scores' to margines SVM
+[rocX, rocY, ~, AUC] = perfcurve(yTest, scores(:, 2), 1);
+
+accuracySVM = sum(yPredClassSVM == yTest') / length(yTest);
+
+% Wyrysowanie krzywej ROC
+figure;
+plot(rocX, rocY, 'b', 'LineWidth', 2);
+xlabel('False Positive Rate');
+ylabel('True Positive Rate');
+title(['ROC Curve (AUC = ' num2str(AUC) ')']);
+grid on;
