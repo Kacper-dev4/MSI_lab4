@@ -67,12 +67,12 @@ figure;
 plotconfusion(yTestCategorical, yPredClassCategorical);
 title('Validation Confusion Matrix');
 
-accuracy = sum(yPredClass == yTest') / length(yTest);
+accuracy = sum(yPredClass == yTest) / length(yTest);
 
 
 %% SVM
 % Tworzenie modelu SVM
-SVMModel = fitcsvm(XTrain, yTrain, 'KernelFunction', 'linear', 'Standardize', true);
+SVMModel = fitcsvm(XTrain, yTrain);%, 'KernelFunction', 'linear', 'Standardize', true);
 
 % Predykcja na zbiorze testowym
 yPredSVM = predict(SVMModel, XTest);
@@ -111,3 +111,28 @@ xlabel('False Positive Rate');
 ylabel('True Positive Rate');
 title(['ROC Curve (AUC = ' num2str(AUC) ')']);
 grid on;
+
+%% Macierz błędów 
+
+% Obliczenie macierzy pomyłek
+confMatrix = confusionmat(yTest, yPredClass);
+
+% Tworzenie macierzy pomyłek z wykresem
+figure;
+cc = confusionchart(confMatrix, {'-1', '1'}, ...
+    'RowSummary', 'row-normalized', ... % Normalizacja wierszy w procentach
+    'ColumnSummary', 'column-normalized'); % Normalizacja kolumn w procentach
+
+% Obliczenie macierzy pomyłek
+confMatrixSVM = confusionmat(yTest, yPredClassSVM);
+
+% Tworzenie macierzy pomyłek z wykresem
+figure;
+ccSVM = confusionchart(confMatrix, {'-1', '1'}, ...
+    'RowSummary', 'row-normalized', ... % Normalizacja wierszy w procentach
+    'ColumnSummary', 'column-normalized'); % Normalizacja kolumn w procentach
+
+
+
+
+
